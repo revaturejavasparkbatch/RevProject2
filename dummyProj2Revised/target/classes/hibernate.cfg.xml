@@ -16,10 +16,10 @@
 		</property>
 		
 		<property name="hibernate.connection.username">
-			
+			haandyha
 		</property>
 		<property name="hibernate.connection.password">
-			
+			l33tn355
 		</property>
 		
 		<property name="hibernate.connection.pool_size">
@@ -31,9 +31,9 @@
 		</property>
 		
 		<property name="hibernate.hbm2ddl.auto">
-			validate
+			update
 		</property>
-		<mapping class="model.User"/>
-		<mapping class="model.Account"/>
+		<mapping class="com.revature.bean.Fortune"/>
+		<mapping class="com.revature.bean.User"/>
 	</session-factory>
 </hibernate-configuration>

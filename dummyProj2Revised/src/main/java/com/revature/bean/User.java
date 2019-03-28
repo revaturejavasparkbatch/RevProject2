@@ -9,7 +9,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="F_User")
+@Table(name="USERS")
 public class User {
 	@Id
 	@Column(name="u_id")
@@ -35,6 +35,15 @@ public class User {
 
 	public User(String email, String fName, String lName, String password) {
 		super();
+		this.email = email;
+		this.fName = fName;
+		this.lName = lName;
+		this.password = password;
+	}
+	
+	public User(Integer id, String email, String fName, String lName, String password) {
+		super();
+		this.id = id;
 		this.email = email;
 		this.fName = fName;
 		this.lName = lName;
