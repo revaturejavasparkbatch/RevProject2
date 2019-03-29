@@ -3,6 +3,8 @@ package com.revature.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,9 +46,12 @@ public class UserController {
 	
 	//create user method (keep)
 	@PostMapping("/apiusers")
-	public String addUser(@RequestParam("email")String email, @RequestParam("first")String first, @RequestParam("last")String last, @RequestParam("pass")String pass) {
-		User newUser = new User(email, first, last, pass);
-		ud.createUser(newUser);
+	public String addUser(HttpServletRequest request) {
+		String first = request.getParameter("first");
+		String email = request.getParameter("email");
+		String pass = request.getParameter("pass");
+		String last = request.getParameter("last");
+		ud.createUser(new User(email, first, last, pass));
 		return "redirect:/apiusers";
 	}
 	
