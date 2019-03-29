@@ -58,16 +58,16 @@ public class UserDaoImpl implements UserDao{
 		User user = (User) s.get(User.class, change.getId());
 		
 		//update user with any non-null fields from change
-		if(change.getEmail() != null)
+		if(!change.getEmail().equals(""))
 			user.setEmail(change.getEmail());
 		
-		if(change.getfName() != null)
+		if(!change.getfName().equals(""))
 			user.setfName(change.getfName());
 		
-		if(change.getlName() != null)
+		if(!change.getlName().equals(""))
 			user.setlName(change.getlName());
 		
-		if(change.getPassword() != null)
+		if(!change.getPassword().equals(""))
 			user.setPassword(change.getPassword());
 		
 		tx.commit();
