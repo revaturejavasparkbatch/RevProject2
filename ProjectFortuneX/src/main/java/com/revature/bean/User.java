@@ -41,6 +41,12 @@ public class User {
 		this.password = password;
 	}
 	
+	public User(String email, String password) {
+		super();
+		this.email = email;
+		this.password = password;
+	}
+	
 	public User(Integer id, String email, String fName, String lName, String password) {
 		super();
 		this.id = id;

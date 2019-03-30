@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -15,11 +22,16 @@ import com.revature.bean.User;
 import com.revature.dao.UserDao;
 import com.revature.dao.UserDaoImpl;
 import com.revature.exceptions.UserNotFoundException;
+import com.revature.services.UserService;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
 public class UserController {
 	
+	//replace all uses of UD
 	UserDao ud = new UserDaoImpl();
+	
+	UserService userService = new UserService();
 	
 	@GetMapping("/apiusers")
 	@ResponseBody
@@ -38,22 +50,43 @@ public class UserController {
 		return ud.getAllUsers();
 	}
 	
-	//create user page (testing)
-	@GetMapping("/new")
-	public String returnNewUserPage() {
-		return "NewUser";
+	//create user method (keep)
+	@PostMapping(path="/apiusers", consumes=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public User addUser(@RequestBody User user) {
+		System.out.println(user);
+		ud.createUser(user);
+		List<User> userList = ud.getAllUsers();
+		for(User u : userList) {
+			System.out.println(u);
+		}
+		//change to homepage
+		return user;
 	}
 	
-	//create user method (keep)
-	@PostMapping("/apiusers")
-	public String addUser(HttpServletRequest request) {
-		String first = request.getParameter("first");
-		String email = request.getParameter("email");
-		String pass = request.getParameter("pass");
-		String last = request.getParameter("last");
-		ud.createUser(new User(email, first, last, pass));
-		return "redirect:/apiusers";
+	@PostMapping(path="/login", consumes=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<User> loginUser(@RequestBody User user, HttpServletRequest request) {
+		System.out.println(user.getEmail());
+		User confirmedUser = userService.confirmLogin(user);
+		if(confirmedUser.getEmail().equals("null")) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		HttpSession session = request.getSession();
+		session.setAttribute("id", user.getId());
+		session.setAttribute("email", user.getEmail());
+		session.setAttribute("fName", user.getfName());
+		session.setAttribute("lName", user.getlName());
+		return new ResponseEntity<User>(confirmedUser, HttpStatus.OK);
 	}
+	
+	//getting the session information
+//	@GetMapping(path="/session", produces=MediaType.APPLICATION_JSON_VALUE)
+//	@ResponseBody
+//	public String getSessionInfo() {
+//		
+//	}
+	
 	
 	//update user page (testing)
 	@GetMapping("/update")
