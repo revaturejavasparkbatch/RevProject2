@@ -3,10 +3,6 @@ package com.revature.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.revature.bean.User;
-import com.revature.dao.UserDao;
-import com.revature.dao.UserDaoImpl;
 import com.revature.exceptions.UserNotFoundException;
 import com.revature.services.UserService;
 
@@ -28,86 +22,93 @@ import com.revature.services.UserService;
 @Controller
 public class UserController {
 	
-	//replace all uses of UD
-	UserDao ud = new UserDaoImpl();
-	
+	//@Autowired
 	UserService userService = new UserService();
 	
-	@GetMapping("/apiusers")
+	User currUser = new User();
+	
+	@GetMapping(path="/apiusers", produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public List<User> getUsers(@RequestParam(value="email", required=false)String email){
+	public ResponseEntity<List<User>> getUsers(@RequestParam(value="email", required=false)String email){
 		if(email != null) {
-			User u = ud.getUserByEmail(email);
+			User u = userService.getUserByEmail(email);
 			if(u == null) 
 				throw new UserNotFoundException();
 			
 			else {
-				ArrayList<User> user = new ArrayList<>();
+				List<User> user = new ArrayList<>();
 				user.add(u);
-				return user;
+				return new ResponseEntity<List<User>>(user, HttpStatus.OK);
 			}
 		}
-		return ud.getAllUsers();
+		List<User> allUsers = userService.getAllUsers();
+		return new ResponseEntity<List<User>>(allUsers, HttpStatus.OK);
 	}
 	
 	//create user method (keep)
 	@PostMapping(path="/apiusers", consumes=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public User addUser(@RequestBody User user) {
-		System.out.println(user);
-		ud.createUser(user);
-		List<User> userList = ud.getAllUsers();
-		for(User u : userList) {
-			System.out.println(u);
-		}
-		//change to homepage
-		return user;
+	public ResponseEntity<User> addUser(@RequestBody User user) {
+		boolean created = userService.createUser(user);
+		if(created)
+			return new ResponseEntity<User>(user, HttpStatus.OK);
+		
+		return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+	
+	//update user method (return updated object and status code updated)
+	@PostMapping(path="/update", consumes=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<User> updateUser(@RequestBody User change) {
+		boolean updated = userService.updateUser(change);
+		if(updated)
+			return new ResponseEntity<User>(change, HttpStatus.OK);
+		
+		return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+		
+	//delete user method (return status code deleted)
+	@PostMapping(path="/delete", consumes=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity deleteUser(@RequestBody User delete) {
+		userService.deleteUser(delete);
+		return new ResponseEntity(HttpStatus.OK);
 	}
 	
 	@PostMapping(path="/login", consumes=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<User> loginUser(@RequestBody User user, HttpServletRequest request) {
+	public ResponseEntity<User> loginUser(@RequestBody User user) {
 		System.out.println(user.getEmail());
 		User confirmedUser = userService.confirmLogin(user);
 		if(confirmedUser.getEmail().equals("null")) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		currUser = confirmedUser;
 		return new ResponseEntity<User>(confirmedUser, HttpStatus.OK);
 	}
 	
 	//getting the session information
-//	@GetMapping(path="/session", produces=MediaType.APPLICATION_JSON_VALUE)
-//	@ResponseBody
-//	public String getSessionInfo() {
-//		
-//	}
-	
-	
-	//update user page (testing)
-	@GetMapping("/update")
-	public String returnUpdateUserPage() {
-		return "UpdateUser";
+	@GetMapping(path="/session", produces=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<User> sessionInfo() {
+		if(!currUser.getEmail().equals("")) {
+			System.out.println("currUser is not null");
+			return new ResponseEntity<User>(currUser, HttpStatus.OK);
+		}
+		
+		System.out.println("currSession is null");
+		return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 	}
 	
-	//update user method (keep)
-	@PostMapping("/update")
-	public String updateUser(@RequestParam("id")Integer id, @RequestParam("email")String email, @RequestParam("first")String first, @RequestParam("last")String last, @RequestParam("pass")String pass) {
-		User change = new User(id, email, first, last, pass);
-		ud.updateUser(change);
-		return "redirect:/apiusers";
-	}
-	
-	//delete user page
-	@GetMapping("/delete")
-	public String rturnDeleteUserPage() {
-		return "DeleteUser";
-	}
-	
-	//delete user method (keep)
-	@PostMapping("/delete")
-	public String deleteUser(@RequestParam("id")Integer id, @RequestParam("email")String email, @RequestParam("first")String first, @RequestParam("last")String last, @RequestParam("pass")String pass) {
-		User delete = new User(id, email, first, last, pass);
-		ud.deleteUser(delete);
-		return "redirect:/apiusers";
+	@PostMapping(path="/session", consumes=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<User> invalidateSession() {		
+		if(!currUser.getEmail().equals("")) {
+			currUser.setId(null);
+			currUser.setEmail("");
+			currUser.setfName("");
+			currUser.setlName("");
+			return new ResponseEntity<User>(currUser, HttpStatus.OK);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
 	}
 }
