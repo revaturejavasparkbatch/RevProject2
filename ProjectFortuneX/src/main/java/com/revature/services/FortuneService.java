@@ -2,7 +2,6 @@ package com.revature.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.revature.bean.Fortune;
@@ -11,7 +10,6 @@ import com.revature.dao.FortuneDaoImpl;
 @Service
 public class FortuneService {
 	
-	//@Autowired
 	FortuneDaoImpl fortuneDaoImpl = new FortuneDaoImpl();
 	
 	public List<Fortune> getAllFortunesByUser(Integer uId){

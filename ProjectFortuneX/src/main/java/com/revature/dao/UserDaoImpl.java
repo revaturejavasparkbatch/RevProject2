@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 
 import com.revature.bean.Fortune;
 import com.revature.bean.User;
@@ -40,8 +41,13 @@ public class UserDaoImpl implements UserDao{
 		int id = 0;
 		Session s = HibernateUtil.getSession();
 		Transaction tx = s.beginTransaction();
-		id = (int) s.save(newUser);
-		tx.commit();
+		try {
+			id = (int) s.save(newUser);
+			tx.commit();
+		}
+		catch(ConstraintViolationException e) {
+			return false;
+		}
 		s.close();
 		
 		if(0 != id)

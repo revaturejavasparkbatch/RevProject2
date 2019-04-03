@@ -2,16 +2,16 @@ package com.revature.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.revature.bean.User;
 import com.revature.dao.UserDaoImpl;
 
 @Service
+@Component
 public class UserService {
 
-	//@Autowired
 	UserDaoImpl userDaoImpl = new UserDaoImpl();
 	
 	//incorporate logic for pulling through all daoimpl methods
@@ -37,17 +37,7 @@ public class UserService {
 		return userDaoImpl.createUser(newUser);
 	}
 	
-	public boolean updateUser(User change) {
-		//if any field is empty, return false
-		if(change.getEmail().equals(""))
-			return false;
-		if(change.getfName().equals(""))
-			return false;
-		if(change.getlName().equals(""))
-			return false;
-		if(change.getPassword().equals(""))
-			return false;
-		
+	public boolean updateUser(User change) {		
 		userDaoImpl.updateUser(change);
 		return true;
 	}
