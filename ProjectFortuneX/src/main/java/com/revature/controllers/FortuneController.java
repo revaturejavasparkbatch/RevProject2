@@ -31,10 +31,11 @@ public class FortuneController {
 	@ResponseBody
 	public ResponseEntity<List<Fortune>> getUsersFortunes(@RequestParam("id")Integer id) {
 		List<Fortune> fortunes = fortuneService.getAllFortunesByUser(id);
-		if(fortunes.size() == 0)
-			throw new NoFortunesFoundException();
-		
-		else
+//		if(fortunes.size() == 0) 
+//			throw new NoFortunesFoundException();
+//		
+//		else
+			//return fortunes array even if empty
 			return new ResponseEntity<List<Fortune>>(fortunes, HttpStatus.OK);
 	}
 	
