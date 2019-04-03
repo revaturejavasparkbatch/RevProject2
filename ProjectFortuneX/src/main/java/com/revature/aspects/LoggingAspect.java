@@ -1,31 +1,40 @@
 package com.revature.aspects;
 
-import org.apache.log4j.Logger;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
-import com.revature.bean.User;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
 public class LoggingAspect {
-	private static Logger log = Logger.getRootLogger();
+	//log4j implementation TODO(fix appender not found problem)
+//	private static Logger log = Logger.getLogger(LoggingAspect.class);
+//	
+//	//log all controller activity
+//	@After("within(com.revature.controllers.*)")
+//	public void logAfter(JoinPoint jp) {
+//		//System.out.println(jp.getSignature()+" was called");
+//		log.info(jp.getSignature()+" was called");
+//	}
 	
-	//logs argument values of loginUser method
-	@Before(value="execution(ResponseEntity<User> loginUser(@RequestBody User user, HttpServletRequest request))")
-	public void logBefore(JoinPoint jp) {
-		log.info("User: "+jp.getArgs()[0]+" attempted to log in.");
+	//fileWriter as logger
+	static String logFilePath = "src/log.txt";
+	
+	//log all controller activity
+	@After("within(com.revature.controllers.*)")
+	public void logAfter(JoinPoint jp) {
+		System.out.println(jp.getSignature()+" was called");
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(logFilePath, true))){
+			
+			bw.write(jp.getSignature().getName()+" method was called");
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	
-	//logs return values of loginUser method
-	@AfterReturning(value="execution(ResponseEntity<User> loginUser(@RequestBody User user, HttpServletRequest request))", returning="returnVal")
-	public void logAfter(JoinPoint jp, ResponseEntity<User> returnVal) {
-		log.info("HTTP status code: "+returnVal.getStatusCodeValue()+", user object returned: "+returnVal.getBody());
-	}
-	
-	
 }
