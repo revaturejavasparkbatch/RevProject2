@@ -9,7 +9,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 
+import org.springframework.stereotype.Component;
+
 @Entity
+@Component
 public class Fortune {
 	@Id
 	@SequenceGenerator(sequenceName="fortune_seq", name="f_seq")
